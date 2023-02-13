@@ -29,5 +29,10 @@ body{
     background-color: rgba(206, 243, 251, 0.7);
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
+.image-of-product{
+    width: 90px;
+    height: 60px;
+    margin: 3px;
+}
 /* update */
 /* delete */

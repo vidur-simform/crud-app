@@ -1,3 +1,6 @@
+const productListJson = localStorage.getItem("productList");
+const productList = productListJson ? JSON.parse(productListJson) : [];
+
 const productName = document.getElementById('product-name');
 const productImage = document.getElementById('product-image');
 productImage.addEventListener('change', async function(){
@@ -6,11 +9,21 @@ productImage.addEventListener('change', async function(){
 const productDescription = document.getElementById('product-description');
 const productPrice = document.getElementById('product-price');
 
-const addBtn = document.getElementById('add-btn');
-addBtn.addEventListener('click', () => {
+const updateBtn = document.getElementById('update-btn');
+updateBtn.addEventListener('click', () => {
     storeData();
 });
 
+const fetchOldDataByProductId =async ()=>{
+    const [, pid] = location.href.split('?id=');
+    let ind = productList.findIndex((obj) => obj.productId == pid);
+    productName.value = productList[ind].productName;
+    // productName.value = productList[ind].productName;
+    productPrice.value = productList[ind].productPrice;
+    productDescription.value = productList[ind].productDescription;
+
+};
+fetchOldDataByProductId();
 const validateData = () => {
     if (!productName.checkValidity()) {
         productName.reportValidity();
@@ -57,7 +70,7 @@ const storeData = async () => {
             productId: Date.now(), //for unique id
             productName: productName.value,
             productImage: imgEncoded,
-            productPrice: productPrice.value,
+            productPrice: productDescription.value,
             productDescription: productDescription.value
         };
 
@@ -75,6 +88,5 @@ const storeData = async () => {
         productImage.value = "";
         productPrice.value = "";
         productDescription.value = "";
-        location.assign("index.html");
     }
 };
