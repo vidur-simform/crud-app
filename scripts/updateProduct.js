@@ -80,7 +80,6 @@ const validateData = () => {
     return false;
 };
 
-
 const updateData = () => {
     //validating input data
     if (!validateData()) return;

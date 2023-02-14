@@ -4,34 +4,36 @@ const tableContent = document.getElementById('table-content');
 var productListJson = localStorage.getItem("productList");
 var productList = productListJson ? JSON.parse(productListJson) : [];
 
+var isDescending = 1;       //-1 for descending false , 1 for ascending
+var sortByFlag = 'id';          //id, name, price
 
-
-var isDescending = false;       //true for descending false for ascending
-var sortByFlag = 'id';  //id, name, price
-const sortList = ()=>{
-    console.log(sortByFlag,isDescending);
-    if(sortByFlag=='id')
-        productList = productList.sort((a,b)=>a.productId > b.productId);
-    else if(sortByFlag=='name')
-        productList = productList.sort((a,b)=>a.productName.localeCompare(b.prodctName));
-    else if(sortByFlag=='price')
-        productList = productList.sort((a,b)=>a.productPrice - b.productPrice);
-    console.log(productList);
-        //order
-    if(isDescending){
-        productList = productList.reverse();
-    }  
+//sorting list
+const sortList = () => {
+    if (sortByFlag == 'id') {
+        productList.sort((a, b) => isDescending*(a.productId - b.productId));
+    }
+    else if (sortByFlag == 'name') {    //localeCompare will return diffrence for string
+        productList.sort((a, b) => isDescending*(a.productName).localeCompare(b.productName));
+    }
+    else if (sortByFlag == 'price') {
+        productList.sort((a, b) => isDescending*(a.productPrice - b.productPrice));
+    }
 };
 
+const filterByID = document.getElementById('filter-by-id');
+filterByID.addEventListener('keyup',()=>{
+    showProducts();
+});
+
 const sortByElement = document.getElementById('sortby');
-sortByElement.addEventListener('change', ()=>{
-    if(sortByElement.value == "sort-by-product-id"){
+sortByElement.addEventListener('change', () => {
+    if (sortByElement.value == "sort-by-product-id") {
         sortByFlag = 'id';
     }
-    else if(sortByElement.value == "sort-by-product-name"){
+    else if (sortByElement.value == "sort-by-product-name") {
         sortByFlag = 'name';
     }
-    else if(sortByElement.value == "sort-by-product-price"){
+    else if (sortByElement.value == "sort-by-product-price") {
         sortByFlag = 'price';
     }
     sortList();
@@ -39,22 +41,20 @@ sortByElement.addEventListener('change', ()=>{
 });
 
 const sortOrderElement = document.getElementById('sort-order');
-sortOrderElement.addEventListener('change', ()=>{
-    if(sortOrderElement.value == "ascending"){
-        isDescending = false;
+sortOrderElement.addEventListener('change', () => {
+    if (sortOrderElement.value == "ascending") {
+        isDescending = 1;
     }
-    else if(sortOrderElement.value == "descending"){
-        isDescending = true;
+    else if (sortOrderElement.value == "descending") {
+        isDescending = -1;
     }
     sortList();
     showProducts();
 });
 
-
-
 //deleting product by index
 const deleteProduct = (ind) => {
-    productList.splice(ind,1);
+    productList.splice(ind, 1);
     localStorage.setItem("productList", JSON.stringify(productList));
     showProducts();
 };
@@ -78,11 +78,11 @@ const tableRow = (ind, productID, productName, productImage, productPrice, produ
 const showProducts = () => {
     let content = '';
     tableContent.innerHTML = '';
-    productList.forEach((prod, ind) => {
+    //filtering
+    productList.filter(obj => obj.productId.toString().includes(filterByID.value)).forEach((prod, ind) => {
         content += tableRow(ind, prod.productId, prod.productName, prod.productImage, prod.productPrice, prod.productDescription);
     });
 
     tableContent.innerHTML = content;
 };
 showProducts();
-
