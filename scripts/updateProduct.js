@@ -1,34 +1,71 @@
+//getting data stored in local storage
 const productListJson = localStorage.getItem("productList");
 const productList = productListJson ? JSON.parse(productListJson) : [];
 
+//getting input and preview element
 const productName = document.getElementById('product-name');
 const productImage = document.getElementById('product-image');
-productImage.addEventListener('change', async function(){
-    document.getElementById('image-preview').src = await encodeAsUrl(productImage.files[0]);
-});
 const productDescription = document.getElementById('product-description');
 const productPrice = document.getElementById('product-price');
+const imagePreview = document.getElementById('image-preview');
 
-const updateBtn = document.getElementById('update-btn');
-updateBtn.addEventListener('click', () => {
-    storeData();
-});
+//this function encode image file as url (asynchronously) which can be used as src (base64)
+const encodeAsUrl = (file) => {
+    return new Promise(function (resolve, reject) {
+        const reader = new FileReader();
+        if (file.type == "image/png" || file.type == "image/jpeg" || file.type =="image/webp") {
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = () => {
+                reject(new Error("Problem encoding file!"))
+            }
+        }
+        else{
+            reject(new Error("Type of file should be image."))
+        }
+    });
+};
 
-const fetchOldDataByProductId =async ()=>{
+//getting encoded image as preview and to store it later
+var imgEncoded = '';
+const getEncodedImage = async () => {
+    try {
+        imgEncoded = await encodeAsUrl(productImage.files[0]);
+    }
+    catch (err) {
+        productImage.value= '';
+        imgEncoded = '';
+        alert(err.message);
+    }
+    finally{
+        imagePreview.src = imgEncoded;
+    }
+}
+productImage.addEventListener('change', getEncodedImage);
+
+//getting object by id for updation
+var ind = -1;
+const fetchOldDataByProductId = () => {
     const [, pid] = location.href.split('?id=');
-    let ind = productList.findIndex((obj) => obj.productId == pid);
-    productName.value = productList[ind].productName;
-    // productName.value = productList[ind].productName;
-    productPrice.value = productList[ind].productPrice;
-    productDescription.value = productList[ind].productDescription;
-
+    ind = productList.findIndex((obj) => obj.productId == pid);
+    if (ind > -1) {
+        productName.value = productList[ind].productName;
+        imagePreview.src = productList[ind].productImage;
+        imgEncoded = productList[ind].productImage;
+        productPrice.value = productList[ind].productPrice;
+        productDescription.value = productList[ind].productDescription;
+    }
 };
 fetchOldDataByProductId();
+
+//validation of input
 const validateData = () => {
     if (!productName.checkValidity()) {
         productName.reportValidity();
     }
-    else if (!productImage.checkValidity()) {
+    else if(imgEncoded==''){   //initially we have old image but not in file input
         productImage.reportValidity();
     }
     else if (!productPrice.checkValidity()) {
@@ -43,50 +80,30 @@ const validateData = () => {
     return false;
 };
 
-const encodeAsUrl = (file) => {
-    return new Promise(function (resolve, reject) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            resolve(reader.result);
-        };
-        reader.onerror = () => {
-            reject(new Error("Problem encoding file!"))
-        }
-    });
-};
 
-const storeData = async () => {
+const updateData = () => {
     //validating input data
     if (!validateData()) return;
 
-    let productListJson = localStorage.getItem("productList");
-    let productList = productListJson ? JSON.parse(productListJson) : [];
+    //creating product object
+    productList[ind].productName = productName.value;
+    productList[ind].productImage = imgEncoded;
+    productList[ind].productPrice = productPrice.value;
+    productList[ind].productDescription = productDescription.value;
 
-    try {
-        //creating product object
-        let imgEncoded = await encodeAsUrl(productImage.files[0]);
-        let product = {
-            productId: Date.now(), //for unique id
-            productName: productName.value,
-            productImage: imgEncoded,
-            productPrice: productDescription.value,
-            productDescription: productDescription.value
-        };
+    //updating in local storage
+    localStorage.setItem("productList", JSON.stringify(productList));
 
-        productList.push(product);
+    //clearing input
+    productName.value = "";
+    productImage.value = "";
+    productPrice.value = "";
+    productDescription.value = "";
 
-        //storing in local storage
-        localStorage.setItem("productList", JSON.stringify(productList));
-    }
-    catch (err) {
-        alert(err.message);
-    }
-    finally {
-        //clearing input
-        productName.value = "";
-        productImage.value = "";
-        productPrice.value = "";
-        productDescription.value = "";
-    }
+    location.replace('index.html');
 };
+
+document.getElementById('update-btn')
+.addEventListener('click', () => {
+    updateData();
+});
