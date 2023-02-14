@@ -1,8 +1,56 @@
 const tableContent = document.getElementById('table-content');
 
 //getting data stored in local storage
-const productListJson = localStorage.getItem("productList");
-const productList = productListJson ? JSON.parse(productListJson) : [];
+var productListJson = localStorage.getItem("productList");
+var productList = productListJson ? JSON.parse(productListJson) : [];
+
+
+
+var isDescending = false;       //true for descending false for ascending
+var sortByFlag = 'id';  //id, name, price
+const sortList = ()=>{
+    console.log(sortByFlag,isDescending);
+    if(sortByFlag=='id')
+        productList = productList.sort((a,b)=>a.productId > b.productId);
+    else if(sortByFlag=='name')
+        productList = productList.sort((a,b)=>a.productName.localeCompare(b.prodctName));
+    else if(sortByFlag=='price')
+        productList = productList.sort((a,b)=>a.productPrice - b.productPrice);
+    console.log(productList);
+        //order
+    if(isDescending){
+        productList = productList.reverse();
+    }  
+};
+
+const sortByElement = document.getElementById('sortby');
+sortByElement.addEventListener('change', ()=>{
+    if(sortByElement.value == "sort-by-product-id"){
+        sortByFlag = 'id';
+    }
+    else if(sortByElement.value == "sort-by-product-name"){
+        sortByFlag = 'name';
+    }
+    else if(sortByElement.value == "sort-by-product-price"){
+        sortByFlag = 'price';
+    }
+    sortList();
+    showProducts();
+});
+
+const sortOrderElement = document.getElementById('sort-order');
+sortOrderElement.addEventListener('change', ()=>{
+    if(sortOrderElement.value == "ascending"){
+        isDescending = false;
+    }
+    else if(sortOrderElement.value == "descending"){
+        isDescending = true;
+    }
+    sortList();
+    showProducts();
+});
+
+
 
 //deleting product by index
 const deleteProduct = (ind) => {
