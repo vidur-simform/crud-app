@@ -14,8 +14,27 @@
     <div class="cont">
         <h1>PRODUCTS</h1>
         <br>
-        <a href="add.html" type="button" class="btn btn-outline-info btn-lg"> Add Product </a> 
+        <span>
+        <a href="add.html" type="button" class="add-prod"> Add Product </a> &nbsp; &nbsp;
+        <input id="filter-by-id" type="text" value="" placeholder="Search Product Here..." class="search" />
+      </span>
         <br> 
+        <div class="filter">
+          <select name="sortby" id="sortby" class='sort-select'>
+            <option value="sort-by-product-id">Sort By Product-Id</option>
+            <option value="sort-by-product-name">Sort By Product-Name</option>
+            <option value="sort-by-product-price">Sort By Product-Price</option>
+          </select>
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          <select name="sortorder" id="sort-order" class='sort-select'>
+            <option value="ascending">Ascending Sort</option>
+            <option value="descending">Descending Sort</option>
+          </select>
+        </div>
+        <br>
     <table class="table table-bordered table1">
         <thead>
           <tr>
